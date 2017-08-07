@@ -1,9 +1,10 @@
 #include <iostream>
 #include <vector>
-#include "tile.h"
-#include "minesweeper.h"
 #include <ctime>
 #include <sstream>
+
+#include "tile.h"
+#include "minesweeper.h"
 
 MineSweeper::MineSweeper(int col, int row, int mineNum)
 {
@@ -118,7 +119,7 @@ void MineSweeper::printMineField()
 void MineSweeper::revealTile(int col, int row)
 {
 
-	this->_minefield[row][col].reveal();
+	this->_minefield[row][col].setReveal();
 	// if the revealTile is mine
 	if (this->_minefield[row][col].isMine())
 	{
@@ -235,7 +236,7 @@ void MineSweeper::EndGame(bool win)
 	{
 		for (int c = 0; c < this->returnCol(); ++c)
 		{
-			this->_minefield[r][c].reveal();
+			this->_minefield[r][c].setReveal();
 		}
 	}
 
