@@ -6,6 +6,8 @@
 #include "tile.h"
 #include "minesweeper.h"
 
+/// Constructors
+// constructor with variables
 MineSweeper::MineSweeper(int col, int row, int mineNum)
 {
 	this->_mineNum = mineNum;
@@ -27,6 +29,7 @@ MineSweeper::MineSweeper(int col, int row, int mineNum)
 	}
 }
 
+// deconstructor (memory deallocation)
 MineSweeper::~MineSweeper()
 {
 	for (int r = 0; r < this->returnRow(); ++r)
@@ -36,7 +39,8 @@ MineSweeper::~MineSweeper()
 	delete[] this->_minefield;
 }
 
-
+/// Game functions
+// create the minefield!
 void MineSweeper::createMinefield(int col, int row)
 {
 	vector<pair<int, int>> options;
@@ -75,25 +79,7 @@ void MineSweeper::createMinefield(int col, int row)
 	this->revealTile(col, row);
 }
 
-void MineSweeper::checkWin()
-{
-	bool win = true;
-	for (int r = 0; r < this->returnRow(); ++r)
-	{
-		for (int c = 0; c < this->returnCol(); ++c)
-		{
-			if (!this->_minefield[r][c].isRevealed()
-				&& !this->_minefield[r][c].isMine())
-				win = false;
-		}
-	}
-	if (win)
-	{
-		this->setGameEnd(true);
-		this->setWin(true);
-	}
-}
-
+// print the minefield!
 void MineSweeper::printMineField()
 {
 	for (int c = 0; c < this->returnCol() * 2 + 1; ++c)
@@ -116,6 +102,106 @@ void MineSweeper::printMineField()
 	}
 }
 
+// End the game!
+void MineSweeper::EndGame(bool win)
+{
+	for (int r = 0; r < this->returnRow(); ++r)
+	{
+		for (int c = 0; c < this->returnCol(); ++c)
+		{
+			this->_minefield[r][c].setReveal();
+		}
+	}
+
+	this->printMineField();
+
+	if (win)
+	{
+		cout << "Won!" << endl;
+	}
+	else
+	{
+		cout << "Lost..." << endl;
+	}
+	this->setGameEnd(true);
+}
+
+// Check if the game is finished and won
+void MineSweeper::checkWin()
+{
+	bool win = true;
+	for (int r = 0; r < this->returnRow(); ++r)
+	{
+		for (int c = 0; c < this->returnCol(); ++c)
+		{
+			if (!this->_minefield[r][c].isRevealed()
+				&& !this->_minefield[r][c].isMine())
+				win = false;
+		}
+	}
+	if (win)
+	{
+		this->setGameEnd(true);
+		this->setWin(true);
+	}
+}
+
+/// count series
+// count nearing mines for a tile
+void MineSweeper::countMine(int col, int row)
+{
+	// if the tile is mine
+	if (this->_minefield[row][col].isMine())
+	{
+		this->_minefield[row][col].setNeighborCount(-1);
+		return;
+	}
+
+	// not mine
+	int total = 0;
+	for (int yoff = -1; yoff <= 1; ++yoff)
+	{
+		for (int xoff = -1; xoff <= 1; ++xoff)
+		{
+			int c = this->_minefield[row][col].returnCol() + xoff;
+			int r = this->_minefield[row][col].returnRow() + yoff;
+
+			if (c > -1 && c < this->returnCol()
+				&& r > -1 && r < this->returnRow())
+			{
+				if (this->_minefield[r][c].isMine()) total += 1;
+			}
+		}
+	}
+	this->_minefield[row][col].setNeighborCount(total);
+}
+
+// count nearing flags for a tile
+int MineSweeper::countFlag(int col, int row)
+{
+	int total = 0;
+	for (int yoff = -1; yoff <= 1; ++yoff)
+	{
+		for (int xoff = -1; xoff <= 1; ++xoff)
+		{
+			if (xoff != 0 || yoff != 0)
+			{
+				int c = this->_minefield[row][col].returnCol() + xoff;
+				int r = this->_minefield[row][col].returnRow() + yoff;
+
+				if (c > -1 && c < this->returnCol()
+					&& r > -1 && r < this->returnRow())
+				{
+					if (this->_minefield[r][c].isFlagged()) total += 1;
+				}
+			}
+		}
+	}
+	return total;
+}
+
+/// reveal series
+// reveal a single tile
 void MineSweeper::revealTile(int col, int row)
 {
 
@@ -148,6 +234,8 @@ void MineSweeper::revealTile(int col, int row)
 	}
 }
 
+// reveal the tiles that are not flagged
+// safe of less or more flags
 void MineSweeper::revealDoubleClick(int col, int row)
 {
 	auto tile = this->_minefield[row][col];
@@ -178,102 +266,29 @@ void MineSweeper::revealDoubleClick(int col, int row)
 	}
 }
 
-void MineSweeper::countMine(int col, int row)
-{
-	// if the tile is mine
-	if (this->_minefield[row][col].isMine())
-	{
-		this->_minefield[row][col].setNeighborCount(-1);
-		return;
-	}
-
-	// not mine
-	int total = 0;
-	for (int yoff = -1; yoff <= 1; ++yoff)
-	{
-		for (int xoff = -1; xoff <= 1; ++xoff)
-		{
-			int c = this->_minefield[row][col].returnCol() + xoff;
-			int r = this->_minefield[row][col].returnRow() + yoff;
-
-			if (c > -1 && c < this->returnCol()
-				&& r > -1 && r < this->returnRow())
-			{
-				if (this->_minefield[r][c].isMine()) total += 1;
-			}
-		}
-	}
-	this->_minefield[row][col].setNeighborCount(total);
-}
-
-int MineSweeper::countFlag(int col, int row)
-{
-	int total = 0;
-	for (int yoff = -1; yoff <= 1; ++yoff)
-	{
-		for (int xoff = -1; xoff <= 1; ++xoff)
-		{
-			if (xoff != 0 || yoff != 0)
-			{
-				int c = this->_minefield[row][col].returnCol() + xoff;
-				int r = this->_minefield[row][col].returnRow() + yoff;
-
-				if (c > -1 && c < this->returnCol()
-					&& r > -1 && r < this->returnRow())
-				{
-					if (this->_minefield[r][c].isFlagged()) total += 1;
-				}
-			}
-		}
-	}
-	return total;
-}
-
-
-void MineSweeper::EndGame(bool win)
-{
-	for (int r = 0; r < this->returnRow(); ++r)
-	{
-		for (int c = 0; c < this->returnCol(); ++c)
-		{
-			this->_minefield[r][c].setReveal();
-		}
-	}
-
-	this->printMineField();
-
-	if (win)
-	{
-		cout << "Won!" << endl;
-	}
-	else
-	{
-		cout << "Lost..." << endl;
-	}
-	this->setGameEnd(true);
-}
-
-
-// set series
+/// set series
 // set GameEnd
 void MineSweeper::setGameEnd(bool finished)
 {
 	this->_gameEnd = finished;
 }
 
+// set a flag on a tile
+// if flagged unflag, unflagged flag
 void MineSweeper::setFlag(int col, int row)
 {
 	if (!this->_minefield[row][col].isRevealed())
 		this->_minefield[row][col].setFlag();
 }
 
+// set the game is won or lost
 void MineSweeper::setWin(bool win)
 {
 	this->_win = win;
 }
 
-// return series
-// return MineNum
+/// return series
+// return MineNum (total number of mines)
 int MineSweeper::returnMineNum()
 {
 	return this->_mineNum;
@@ -303,6 +318,8 @@ bool MineSweeper::returnWin()
 	return this->_win;
 }
 
+
+//// Server ONLY ////
 // return state of the minefield (for AI)
 string MineSweeper::returnMineState()
 {

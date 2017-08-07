@@ -9,6 +9,7 @@ using namespace std;
 class MineSweeper
 {
 private:
+	// universal
 	int _col;
 	int _row;
 	int _mineNum;
@@ -18,20 +19,20 @@ private:
 	bool _win = false;
 
 public:
+	// universal
 	MineSweeper(int col, int row, int mineNum);
 	~MineSweeper();
+
+	void createMinefield(int col, int row);
+	void printMineField();
+	void EndGame(bool win);
+	void checkWin();
 
 	void countMine(int col, int row);
 	int countFlag(int col, int row);
 
-	void createMinefield(int col, int row);
-	void printMineField();
-	
 	void revealTile(int col, int row);
 	void revealDoubleClick(int col, int row);
-
-	void EndGame(bool win);
-	void checkWin();
 
 	void setGameEnd(bool finished);
 	void setFlag(int col, int row);
@@ -42,5 +43,7 @@ public:
 	int returnRow();
 	int returnMineNum();
 	bool returnWin();
+
+	// Server only
 	string returnMineState();
 };
