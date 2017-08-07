@@ -5,20 +5,22 @@
 #include "tile.h"
 
 using namespace std;
+/// Constructors
+// No variables
 Tile::Tile()
 {
 	this->_col = 0;
 	this->_row = 0;
-	//this->_revealed = true;
 }
 
+// with variables 
 Tile::Tile(int col, int row)
 {
 	this->_col = col;
 	this->_row = row;
-	//this->_revealed = true;
 }
 
+// print the tile status
 void Tile::printTile()
 {
 	std::cout << "|";
@@ -29,22 +31,11 @@ void Tile::printTile()
 	else cout << "C";									// Covered 
 }
 
-void Tile::reveal()
-{
-	this->_revealed = true;
-}
-
-// is series
+/// is series
 // is it mine?
 bool Tile::isMine()
 {
 	return this->_mine;
-}
-
-// is it Flagged?
-bool Tile::isFlagged()
-{
-	return this->_flagged;
 }
 
 // is it revealed?
@@ -53,17 +44,23 @@ bool Tile::isRevealed()
 	return this->_revealed;
 }
 
-// return series
-// return its column
-int Tile::returnCol()
+// is it Flagged?
+bool Tile::isFlagged()
 {
-	return this->_col;
+	return this->_flagged;
 }
 
+/// return series
 // return its row
 int Tile::returnRow()
 {
 	return this->_row;
+}
+
+// return its column
+int Tile::returnCol()
+{
+	return this->_col;
 }
 
 // return neighborCount;
@@ -72,16 +69,7 @@ int Tile::returnNeighborCount()
 	return this->_neighborCount;
 }
 
-string Tile::returnTile()
-{
-	if (this->isRevealed() && this->isMine()) return "M";
-	else if (this->isRevealed())
-		return to_string(this->returnNeighborCount());
-	else if (this->isFlagged()) return "F";				// Flag
-	else return "C";									// Covered
-}
-
-// set series
+/// set series
 // set Mine
 void Tile::setMine()
 {
@@ -101,3 +89,19 @@ void Tile::setNeighborCount(int count)
 	this->_neighborCount = count;
 }
 
+// set reveal
+void Tile::setReveal()
+{
+	this->_revealed = true;
+}
+
+/// For Server
+// return the status as string
+string Tile::returnTile()
+{
+	if (this->isRevealed() && this->isMine()) return "M";
+	else if (this->isRevealed())
+		return to_string(this->returnNeighborCount());
+	else if (this->isFlagged()) return "F";				// Flag
+	else return "C";									// Covered
+}

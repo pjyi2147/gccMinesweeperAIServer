@@ -3,6 +3,7 @@
 class Tile
 {
 private:
+	// universal
 	bool _mine = false;				// is it mine?
 	bool _revealed = false;			// is it revealed?
 	bool _flagged = false;
@@ -12,10 +13,10 @@ private:
 	int _row;
 	
 public:
+	// universal
 	Tile();
 	Tile(int col, int row);
 
-	void reveal();
 	void printTile();
 	
 	bool isMine();
@@ -25,9 +26,12 @@ public:
 	int returnRow();
 	int returnCol();
 	int returnNeighborCount();
-	std::string returnTile();
 
 	void setMine();
 	void setFlag();
 	void setNeighborCount(int count);
+	void setReveal();
+
+	// for Server
+	std::string returnTile();
 };
