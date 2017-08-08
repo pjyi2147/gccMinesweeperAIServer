@@ -203,9 +203,8 @@ int MineSweeper::countFlag(int col, int row)
 // reveal a single tile
 void MineSweeper::revealTile(int col, int row)
 {
-
 	this->_minefield[row][col].setReveal();
-	// if the revealTile is mine
+	// if the Tile has mine
 	if (this->_minefield[row][col].isMine())
 	{
 		this->setGameEnd(true);
