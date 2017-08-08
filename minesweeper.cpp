@@ -32,7 +32,7 @@ MineSweeper::MineSweeper(int col, int row, int mineNum)
 // deconstructor (memory deallocation)
 MineSweeper::~MineSweeper()
 {
-	for (int r = 0; r < this->returnRow(); ++r)
+	for (int r = 0; r < this->_row; ++r)
 	{
 		delete[] this->_minefield[r];
 	}
@@ -43,34 +43,33 @@ MineSweeper::~MineSweeper()
 // create the minefield!
 void MineSweeper::createMinefield(int col, int row)
 {
-	vector<pair<int, int>> options;
-
-	for (int r = 0; r < this->returnRow(); ++r)
+	vector<int> options;
+	for (int r = 0; r < this->_row; ++r)
 	{
-		for (int c = 0; c < this->returnCol(); ++c)
+		for (int c = 0; c < this->_col; ++c)
 		{
 			if (!(r == row && c == col))
 			{
-				options.push_back(make_pair(c, r));
+				options.push_back(r * this->_col + c);
 			}
 		}
 	}
 
-	for (int i = 0; i < this->returnMineNum(); ++i)
+	for (int i = 0; i < this->_mineNum; ++i)
 	{
 		if (options.size() > 0)
 		{
 			srand(time(NULL));
 			int k = (rand() % options.size());
 			auto pair1 = options[k];
-			this->_minefield[pair1.second][pair1.first].setMine();
-			options.erase(options.begin() + k);;
+			this->_minefield[pair1 / this->_col][pair1 % this->_col].setMine();
+			options.erase(options.begin() + k);
 		}
 	}
 
-	for (int r = 0; r < this->returnRow(); ++r)
+	for (int r = 0; r < this->_row; ++r)
 	{
-		for (int c = 0; c < this->returnCol(); ++c)
+		for (int c = 0; c < this->_col; ++c)
 		{
 			this->countMine(c, r);
 		}
@@ -82,19 +81,19 @@ void MineSweeper::createMinefield(int col, int row)
 // print the minefield!
 void MineSweeper::printMineField()
 {
-	for (int c = 0; c < this->returnCol() * 2 + 1; ++c)
+	for (int c = 0; c < this->_col * 2 + 1; ++c)
 	{
 		cout << "-";
 	}
 	cout << endl;
-	for (int r = 0; r < this->returnRow(); ++r)
+	for (int r = 0; r < this->_row; ++r)
 	{
-		for (int c = 0; c < this->returnCol(); ++c)
+		for (int c = 0; c < this->_col; ++c)
 		{
 			this->_minefield[r][c].printTile();
 		}
 		cout << "|" << endl;
-		for (int c = 0; c < this->returnCol() * 2 + 1; ++c)
+		for (int c = 0; c < this->_col * 2 + 1; ++c)
 		{
 			cout << "-";
 		}
@@ -105,9 +104,9 @@ void MineSweeper::printMineField()
 // End the game!
 void MineSweeper::EndGame(bool win)
 {
-	for (int r = 0; r < this->returnRow(); ++r)
+	for (int r = 0; r < this->_row; ++r)
 	{
-		for (int c = 0; c < this->returnCol(); ++c)
+		for (int c = 0; c < this->_col; ++c)
 		{
 			this->_minefield[r][c].setReveal();
 		}
@@ -130,9 +129,9 @@ void MineSweeper::EndGame(bool win)
 void MineSweeper::checkWin()
 {
 	bool win = true;
-	for (int r = 0; r < this->returnRow(); ++r)
+	for (int r = 0; r < this->_row; ++r)
 	{
-		for (int c = 0; c < this->returnCol(); ++c)
+		for (int c = 0; c < this->_col; ++c)
 		{
 			if (!this->_minefield[r][c].isRevealed()
 				&& !this->_minefield[r][c].isMine())
@@ -163,11 +162,11 @@ void MineSweeper::countMine(int col, int row)
 	{
 		for (int xoff = -1; xoff <= 1; ++xoff)
 		{
-			int c = this->_minefield[row][col].returnCol() + xoff;
-			int r = this->_minefield[row][col].returnRow() + yoff;
+			int c = col + xoff;
+			int r = row + yoff;
 
-			if (c > -1 && c < this->returnCol()
-				&& r > -1 && r < this->returnRow())
+			if (c > -1 && c < this->_col
+				&& r > -1 && r < this->_row)
 			{
 				if (this->_minefield[r][c].isMine()) total += 1;
 			}
@@ -186,11 +185,11 @@ int MineSweeper::countFlag(int col, int row)
 		{
 			if (xoff != 0 || yoff != 0)
 			{
-				int c = this->_minefield[row][col].returnCol() + xoff;
-				int r = this->_minefield[row][col].returnRow() + yoff;
+				int c = col + xoff;
+				int r = row + yoff;
 
-				if (c > -1 && c < this->returnCol()
-					&& r > -1 && r < this->returnRow())
+				if (c > -1 && c < this->_col
+					&& r > -1 && r < this->_row)
 				{
 					if (this->_minefield[r][c].isFlagged()) total += 1;
 				}
@@ -220,11 +219,11 @@ void MineSweeper::revealTile(int col, int row)
 		{
 			for (int xoff = -1; xoff <= 1; ++xoff)
 			{
-				int c = this->_minefield[row][col].returnCol() + xoff;
-				int r = this->_minefield[row][col].returnRow() + yoff;
+				int c = col + xoff;
+				int r = row + yoff;
 
-				if (c > -1 && c < this->returnCol() && r > -1
-					&& r < this->returnRow())
+				if (c > -1 && c < this->_col 
+					&& r > -1 && r < this->_row)
 				{
 					if (!this->_minefield[r][c].isRevealed())
 						this->revealTile(c, r);
@@ -238,12 +237,11 @@ void MineSweeper::revealTile(int col, int row)
 // safe of less or more flags
 void MineSweeper::revealDoubleClick(int col, int row)
 {
-	auto tile = this->_minefield[row][col];
 	// not revealed -> do nothing
-	if (!tile.isRevealed()) return;
+	if (!this->_minefield[row][col].isRevealed()) return;
 
 	// the flag count does not match the mine num -> do nothing
-	if (this->countFlag(col, row) != tile.returnNeighborCount()) return;
+	if (this->countFlag(col, row) != this->_minefield[row][col].returnNeighborCount()) return;
 
 	for (int yoff = -1; yoff <= 1; ++yoff)
 	{
@@ -251,12 +249,12 @@ void MineSweeper::revealDoubleClick(int col, int row)
 		{
 			if (xoff != 0 || yoff != 0)
 			{
-				int c = tile.returnCol() + xoff;
-				int r = tile.returnRow() + yoff;
+				int c = col + xoff;
+				int r = row + yoff;
 
 				// within range
-				if (c > -1 && c < this->returnCol() && r > -1
-					&& r < this->returnRow())
+				if (c > -1 && c < this->_col 
+					&& r > -1 && r < this->_row)
 				{
 					if (!this->_minefield[r][c].isFlagged())
 						this->revealTile(c, r);
@@ -324,14 +322,12 @@ bool MineSweeper::returnWin()
 string MineSweeper::returnMineState()
 {
 	stringstream s;
-
-	for (int r = 0; r < this->returnRow(); ++r)
+	for (int r = 0; r < this->_row; ++r)
 	{
-		for (int c = 0; c < this->returnCol(); ++c)
+		for (int c = 0; c < this->_col; ++c)
 		{
-			s << this->_minefield[r][c].returnTile();
+			s << this->_minefield[r][c].returnTileState();
 		}
 	}
-
 	return s.str();
 }
