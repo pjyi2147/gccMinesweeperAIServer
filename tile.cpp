@@ -97,11 +97,11 @@ void Tile::setReveal()
 
 /// For Server
 // return the status as string
-string Tile::returnTile()
+string Tile::returnTileState()
 {
-	if (this->isRevealed() && this->isMine()) return "M";
-	else if (this->isRevealed())
-		return to_string(this->returnNeighborCount());
-	else if (this->isFlagged()) return "F";				// Flag
-	else return "C";									// Covered
+	if (this->_revealed && this->_mine) return "M";
+	else if (this->_revealed)
+		return to_string(this->_neighborCount);
+	else if (this->_flagged) return "F";			// Flag
+	else return "C";								// Covered
 }

@@ -33,5 +33,5 @@ public:
 	void setReveal();
 
 	// for Server
-	std::string returnTile();
+	std::string returnTileState();
 };
