@@ -10,6 +10,7 @@ using boost::asio::ip::tcp;
 using namespace std;
 using json = nlohmann::json;
 
+/// helpers
 // code from the link
 // string split
 template<typename Out>
@@ -27,48 +28,6 @@ std::vector<std::string> split(const std::string &s, char delim) {
 	split(s, delim, std::back_inserter(elems));
 	return elems;
 }
-
-// isdigits
-bool isdigits1(const string s) {
-	return s.find_first_not_of("0123456789") == string::npos;
-}
-
-/*
-// the script parser
-void scriptParser(string* command, int* col, int* row, MineSweeper* m)
-{
-	int c, r;
-	cout << "Input command separated by space [command col row]: ";
-	string str;
-	getline(cin, str);
-	if (tokens.size() != 3)
-	{
-		cout << "Error: too many arguments" << endl;
-		// readScript(command, col, row, m);
-		return;
-	}
-	if (tokens[0] != "E" && tokens[0] != "F" && tokens[0] != "D")
-	{
-		cout << "Error: unknown command, try again" << endl;
-		// readScript(command, col, row, m);
-		return;
-	}
-	if (!isdigits1(tokens[1]) || !isdigits1(tokens[2]))
-	{
-		cout << "Error: Row or Col is not numbers. Try again." << endl;
-		// readScript(command, col, row, m);
-		return;
-	}
-	if (stoi(tokens[1]) >= m->returnCol() || stoi(tokens[1]) < 0 ||
-		stoi(tokens[2]) >= m->returnRow() || stoi(tokens[2]) < 0)
-	{
-		cout << "Error: Row or Col out of range. Try again." << endl;
-		// readScript(command, col, row, m);
-		return;
-	}
-	
-}
-*/
 
 void scriptExecutor(string line, MineSweeper* m)
 {
@@ -103,35 +62,7 @@ string infoMinefield(MineSweeper* m)
 	return infoMinefieldJson.dump();
 }
 
-void server()
-{
-	cout << "Server boot up on port 1234" << endl;
-	try
-	{
-		boost::asio::io_service io_service;
-		tcp::acceptor acceptor(io_service, tcp::endpoint(tcp::v4(), 1234));
-
-		tcp::socket socket(io_service);
-		acceptor.accept(socket);
-		
-		cout << "Client connected" << endl;
-
-		boost::array<char, 1000> buf;
-		boost::system::error_code error;
-		size_t len = socket.read_some(boost::asio::buffer(buf), error);
-
-		std::cout.write(buf.data(), len);
-
-		std::string message = "Test";
-		boost::system::error_code ignored_error;
-		boost::asio::write(socket, boost::asio::buffer(message), ignored_error);
-	}
-	catch (std::exception& e)
-	{
-		std::cerr << e.what() << std::endl;
-	}
-}
-
+/// main
 void startGamefunction(int& order)
 {
 	cout << "Server boot up on port 1234" << endl;
@@ -146,10 +77,10 @@ void startGamefunction(int& order)
 		cout << "Client connected" << endl;
 
 		// read
-		boost::array<char, 1000> buf;
+		boost::array<char, 10> buf;
 		boost::system::error_code error;
 		size_t len = socket.read_some(boost::asio::buffer(buf), error);
-		auto order_str = string(buf.begin(), buf.end());
+		auto order_str = string(buf.begin(), buf.begin() + len);
 
 		order = stoi(order_str);
 
@@ -180,7 +111,6 @@ void startGamefunction(int& order)
 		boost::system::error_code ignored_error;
 		boost::asio::write(socket, boost::asio::buffer(message), ignored_error);
 	}
-
 	catch (std::exception& e)
 	{
 		std::cerr << e.what() << std::endl;
@@ -202,7 +132,7 @@ void firstScriptTransfer(int& col, int& row, string& command, MineSweeper* m)
 		cout << "Client connected" << endl;
 
 		// read
-		boost::array<char, 1000> buf;
+		boost::array<char, 512> buf;
 		boost::system::error_code error;
 		size_t len = socket.read_some(boost::asio::buffer(buf), error);
 		auto order_str = string(buf.begin(), buf.begin() + len);
@@ -213,7 +143,6 @@ void firstScriptTransfer(int& col, int& row, string& command, MineSweeper* m)
 		command = json_rec["command"];
 
 		// execute
-
 		m->createMinefield(col, row);
 
 		// write
@@ -223,14 +152,13 @@ void firstScriptTransfer(int& col, int& row, string& command, MineSweeper* m)
 		boost::system::error_code ignored_error;
 		boost::asio::write(socket, boost::asio::buffer(message), ignored_error);
 	}
-
 	catch (std::exception& e)
 	{
 		std::cerr << e.what() << std::endl;
 	}
 }
 
-void ingameTransfer(json* orders, MineSweeper *m)
+void ingameTransfer(MineSweeper *m)
 {
 	cout << "Server boot up on port 1234" << endl;
 	try
@@ -245,18 +173,19 @@ void ingameTransfer(json* orders, MineSweeper *m)
 		cout << "Client connected" << endl;
 
 		// read
-		boost::array<char, 2000> buf;
+		boost::array<char, 512> buf;
 		boost::system::error_code error;
 		size_t len = socket.read_some(boost::asio::buffer(buf), error);
 		auto order_str = string(buf.begin(), buf.begin() + len);
-		*orders = json::parse(order_str);
-
 		cout << "Message received: " << order_str << endl;
-		vector<string> order = (*orders)["orders"];
+		
+		auto orders = json::parse(order_str);
 
-		for (auto& i : order)
+		vector<string> commands = orders["orders"];
+
+		for (auto& command : commands)
 		{
-			scriptExecutor(i, m);
+			scriptExecutor(command, m);
 		}
 
 		// write
@@ -266,7 +195,6 @@ void ingameTransfer(json* orders, MineSweeper *m)
 		boost::system::error_code ignored_error;
 		boost::asio::write(socket, boost::asio::buffer(message), ignored_error);
 	}
-
 	catch (std::exception& e)
 	{
 		std::cerr << e.what() << std::endl;
