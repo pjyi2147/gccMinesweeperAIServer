@@ -9,100 +9,100 @@ using namespace std;
 // No variables
 Tile::Tile()
 {
-	this->_col = 0;
-	this->_row = 0;
+  this->_col = 0;
+  this->_row = 0;
 }
 
 // with variables 
 Tile::Tile(int col, int row)
 {
-	this->_col = col;
-	this->_row = row;
+  this->_col = col;
+  this->_row = row;
 }
 
 // print the tile status
 void Tile::printTile()
 {
-	std::cout << "|";
-	if (this->_revealed && this->_mine) cout << "M";
-	else if (this->_revealed)
-		cout << this->_neighborCount;
-	else if (this->_flagged) cout << "F";			// Flag
-	else cout << "C";								// Covered 
+  std::cout << "|";
+  if (this->_revealed && this->_mine) cout << "M";
+  else if (this->_revealed)
+    cout << this->_neighborCount;
+  else if (this->_flagged) cout << "F";			// Flag
+  else cout << "C";								// Covered 
 }
 
 /// is series
 // is it mine?
 bool Tile::isMine()
 {
-	return this->_mine;
+  return this->_mine;
 }
 
 // is it revealed?
 bool Tile::isRevealed()
 {
-	return this->_revealed;
+  return this->_revealed;
 }
 
 // is it Flagged?
 bool Tile::isFlagged()
 {
-	return this->_flagged;
+  return this->_flagged;
 }
 
 /// return series
 // return its row
 int Tile::returnRow()
 {
-	return this->_row;
+  return this->_row;
 }
 
 // return its column
 int Tile::returnCol()
 {
-	return this->_col;
+  return this->_col;
 }
 
 // return neighborCount;
 int Tile::returnNeighborCount()
 {
-	return this->_neighborCount;
+  return this->_neighborCount;
 }
 
 /// set series
 // set Mine
 void Tile::setMine()
 {
-	this->_mine = true;
+  this->_mine = true;
 }
 
 // set Flag
 void Tile::setFlag()
 {
-	// if flagged unflag, if unflagged flag
-	if (this->_flagged) this->_flagged = false;
-	else this->_flagged = true;
+  // if flagged unflag, if unflagged flag
+  if (this->_flagged) this->_flagged = false;
+  else this->_flagged = true;
 }
 
 // set NeighborCount
 void Tile::setNeighborCount(int count)
 {
-	this->_neighborCount = count;
+  this->_neighborCount = count;
 }
 
 // set reveal
 void Tile::setReveal()
 {
-	this->_revealed = true;
+  this->_revealed = true;
 }
 
 /// For Server
 // return the status as string
 string Tile::returnTileState()
 {
-	if (this->_revealed && this->_mine) return "M";
-	else if (this->_revealed)
-		return to_string(this->_neighborCount);
-	else if (this->_flagged) return "F";			// Flag
-	else return "C";								// Covered
+  if (this->_revealed && this->_mine) return "M";
+  else if (this->_revealed)
+    return to_string(this->_neighborCount);
+  else if (this->_flagged) return "F";			// Flag
+  else return "C";								// Covered
 }
